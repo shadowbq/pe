@@ -1,4 +1,8 @@
-from setuptools import setup
+
+import sys
+from os.path import abspath, dirname, join, realpath
+from setuptools import setup, find_packages
+
 
 setup(
     name='pe',
@@ -10,10 +14,11 @@ setup(
     keywords='malware',
     include_package_data=True,
     install_requires=['pefile', 'yara-python'],
-    license='GPLv3',
+    license='MIT',
     python_requires='>=3.5',
-    packages=['pe', 'pe.plugins', 'pe.lib', 'pe.data'],
+    packages=find_packages(exclude=["*.tests", "*.test", "tests", "test"]),
     package_dir={'pe.lib': 'pe/lib'},
     package_data={'pe': ['pe/data/*.yara']},
+    scripts=['pecli.py'],
 
 )
