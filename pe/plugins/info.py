@@ -4,7 +4,6 @@ import json
 import hashlib
 import pefile
 import datetime
-import magic
 import copy
 from pe.plugins.base import Plugin
 from pe.lib.display import display_sections
@@ -97,13 +96,13 @@ class PluginInfo(Plugin):
             data = pe.get_memory_mapped_image()[offset:offset+size]
             m = hashlib.md5()
             m.update(data)
-            print("%-12s %-7s %-9s %-14s %-17s %-14s %-9s" % (
+            print("%-12s %-7s %-9s %-14s %-17s %-9s" % (
                     "-".join(parents + [str(r.id)]),
                     str(r.name),
                     "%i B" % size,
                     pefile.LANG.get(r.data.lang, 'UNKNOWN'),
                     pefile.get_sublang_name_for_lang(r.data.lang, r.data.sublang),
-                    magic.from_buffer(data),
+                    
                     m.hexdigest()
                 )
             )
@@ -128,6 +127,7 @@ class PluginInfo(Plugin):
                     self.resource(pe, 0, r, [])
 
     def add_arguments(self, parser):
+        parser.add_argument('--hashes', '-x', action='store_true', help='Only display hashes')
         parser.add_argument('--sections', '-s', action='store_true', help='Only display sections')
         parser.add_argument('--imports', '-i',  action='store_true', help='Display imports only')
         parser.add_argument('--exports', '-e',  action='store_true', help='Display exports only')
@@ -136,6 +136,9 @@ class PluginInfo(Plugin):
         self.parser = parser
 
     def run(self, args, pe, data):
+        if args.hashes:
+            self.display_hashes(data, pe)
+            sys.exit(0)
         if args.sections:
             display_sections(pe)
             sys.exit(0)
@@ -156,7 +159,7 @@ class PluginInfo(Plugin):
         print("=" * 80)
         self.display_hashes(data, pe)
         print("Size:          %d bytes" % len(data))
-        print("Type:          %s" % magic.from_buffer(data))
+
         self.display_headers(pe)
         entry_point = pe.OPTIONAL_HEADER.AddressOfEntryPoint + pe.OPTIONAL_HEADER.ImageBase
         section = self.search_section(pe, entry_point, physical=False)

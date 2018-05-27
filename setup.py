@@ -9,13 +9,11 @@ setup(
     author_email='tek@randhome.io',
     keywords='malware',
     include_package_data=True,
-    install_requires=['pefile', 'yara-python', 'python-magic', 'ipython'],
+    install_requires=['pefile', 'yara-python'],
     license='GPLv3',
     python_requires='>=3.5',
     packages=['pe', 'pe.plugins', 'pe.lib', 'pe.data'],
     package_dir={'pe.lib': 'pe/lib'},
     package_data={'pe': ['pe/data/*.yara']},
-    entry_points= {
-        'console_scripts': [ 'pe=pe.main:main' ]
-    }
+
 )
