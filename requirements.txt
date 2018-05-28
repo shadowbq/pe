@@ -1,3 +1,4 @@
 pefile
 yara-python
 ssdeep-windows
+python-magic-bin

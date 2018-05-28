@@ -1,4 +1,5 @@
 #! /usr/bin/env python
+import os
 import sys
 import json
 import hashlib
@@ -6,6 +7,8 @@ import pefile
 import ssdeep
 import datetime
 import copy
+import magic
+import ntpath
 from pe.plugins.base import Plugin
 from pe.lib.display import display_sections
 
@@ -52,11 +55,13 @@ class PluginInfo(Plugin):
         print("%-14s %s" % ("IMPHASH:", pe.get_imphash()))
         print("%-14s %s" %("SSDEEP:", ssdeep.hash_from_file(filepath)))
 
-    def display_headers(self, pe):
+    def display_headers(self, filepath, data, pe):
         """Display header information"""
-        if pe.FILE_HEADER.IMAGE_FILE_DLL:
-            print("DLL File! ")
+        print("Size:          %d bytes" % len(data))
+        print("Type:          %s" % magic.from_buffer(data))
         print("Compile Time:  %s (UTC - 0x%-8X)"  %(str(datetime.datetime.utcfromtimestamp(pe.FILE_HEADER.TimeDateStamp)), pe.FILE_HEADER.TimeDateStamp))
+        print("Observered Path: %s" % os.path.abspath(filepath))
+        print("Observered Filename: %s" % ntpath.basename(filepath))
 
     def display_imports(self, pe):
         """Display imports"""
@@ -88,6 +93,8 @@ class PluginInfo(Plugin):
             for i in pe.DIRECTORY_ENTRY_DEBUG:
                 if hasattr(i.entry, 'PdbFileName'):
                     print("Debug Information: %s" % i.entry.PdbFileName.decode('utf-8'))
+        else:
+            print("Debug Information: (unavailable)")
 
     def resource(self, pe, level, r, parents):
         """Recursive printing of resources"""
@@ -98,13 +105,13 @@ class PluginInfo(Plugin):
             data = pe.get_memory_mapped_image()[offset:offset+size]
             m = hashlib.md5()
             m.update(data)
-            print("%-12s %-7s %-9s %-14s %-17s %-9s" % (
+            print("%-12s %-7s %-9s %-14s %-17s %-14s %-9s" % (
                     "-".join(parents + [str(r.id)]),
                     str(r.name),
                     "%i B" % size,
                     pefile.LANG.get(r.data.lang, 'UNKNOWN'),
                     pefile.get_sublang_name_for_lang(r.data.lang, r.data.sublang),
-                    
+                    magic.from_buffer(data),
                     m.hexdigest()
                 )
             )
@@ -141,6 +148,7 @@ class PluginInfo(Plugin):
         
         if args.hashes:
             self.display_hashes(args.PEFILE, data, pe)
+            self.display_headers(args.PEFILE, data, pe)
             sys.exit(0)
         if args.sections:
             display_sections(pe)
@@ -161,12 +169,12 @@ class PluginInfo(Plugin):
         print("Metadata")
         print("=" * 80)
         self.display_hashes(args.PEFILE, data, pe)
-        print("Size:          %d bytes" % len(data))
-
-        self.display_headers(pe)
+        self.display_headers(args.PEFILE, data, pe)
+        
         entry_point = pe.OPTIONAL_HEADER.AddressOfEntryPoint + pe.OPTIONAL_HEADER.ImageBase
         section = self.search_section(pe, entry_point, physical=False)
         print("Entry point:   0x%x (section %s)" % (pe.OPTIONAL_HEADER.AddressOfEntryPoint + pe.OPTIONAL_HEADER.ImageBase, section))
+        
         res = self.check_tls(pe)
         if len(res) > 0:
             if len(res) == 1:

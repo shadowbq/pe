@@ -37,12 +37,17 @@ def main():
         try:
             with open(args.PEFILE, 'rb') as f:
                 data = f.read()
-            pe = pefile.PE(data=data)
-            plugins[args.plugin].run(args, pe, data)
+            if (args.plugin == "nonpe"):
+                plugins['nonpe'].run(args, data)
+            else:
+                pe = pefile.PE(data=data)
+                plugins[args.plugin].run(args, pe, data)
         except pefile.PEFormatError:
-            print("Invalid PE file")
+            #import code; code.interact(local=dict(globals(), **locals()))
+            plugins['nonpe'].run(args, data)
+            print(" ** Invalid PE file **")
         except FileNotFoundError:
-            print("File not found")
+            print("** File not found **")
     else:
         parser.print_help()
 
