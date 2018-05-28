@@ -1,4 +1,4 @@
-# PE
+# PE / PECLI
 
 Tool to analyze PE files in python 3. Current features :
 * Show information about the file (import, exports, resources)
@@ -10,15 +10,15 @@ Tool to analyze PE files in python 3. Current features :
 
 ## Binary Release
 
-The main purpose of the fork from Te-k/pe was to provide a Window ready PyInstaller based single binary that includes the libmagic and ssdeep precompiled windows dlls
+The main purpose of the fork from Te-k/pe was to provide a Windows 32-bit ready PyInstaller based single binary that includes the `libmagic` and` ssdeep` precompiled windows dlls
 
 https://github.com/shadowbq/pecli/releases
 
-## Installation
+## `Pip` local Installation
 
 ```
-git clone git@github.com:Te-k/pe.git
-cd pe
+git clone git@github.com:shadowbq/pecli.git
+cd pecli
 pip install .
 ```
 
@@ -32,7 +32,7 @@ Current plugins includes :
 * **search** : Search for a string in a PE file
 * **checksize** : Check size of the PE file
 * **check** :  Check for weird stuff in the PE file
-* **shell** : Launch ipython shell to analyze the PE file
+* **nonpe** : Provide Basic information about Non-PE files
 
 Example :
 ```
