@@ -13,7 +13,7 @@ setup(
     author_email='tek@randhome.io',
     keywords='malware',
     include_package_data=True,
-    install_requires=['pefile', 'yara-python'],
+    install_requires=['pefile', 'yara-python','ssdeep-windows'],
     license='MIT',
     python_requires='>=3.5',
     packages=find_packages(exclude=["*.tests", "*.test", "tests", "test"]),

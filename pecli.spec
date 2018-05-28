@@ -5,9 +5,9 @@ block_cipher = None
 
 a = Analysis(['pecli.py'],
              pathex=['C:\\tools\\pe'],
-             binaries=[],
+             binaries=[(r'C:\Program Files (x86)\Python36-32\Lib\site-packages\ssdeep\bin','.')],
              datas=[(r'.\pe\plugins','pe\plugins'),(r'.\pe\lib','pe\lib'),(r'.\pe\data','pe\data')],
-             hiddenimports=['yara','pefile','json'],
+             hiddenimports=['yara','pefile','json','ssdeep'],
              hookspath=[],
              runtime_hooks=[],
              excludes=[],

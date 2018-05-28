@@ -3,6 +3,7 @@ import sys
 import json
 import hashlib
 import pefile
+import ssdeep
 import datetime
 import copy
 from pe.plugins.base import Plugin
@@ -42,15 +43,16 @@ class PluginInfo(Plugin):
                 idx += 1
         return callbacks
 
-    def display_hashes(self, data, pe):
+    def display_hashes(self, filepath, data, pe):
         """Display md5, sha1 and sh256 of the data given"""
         for algo in ["md5", "sha1", "sha256"]:
             m = getattr(hashlib, algo)()
             m.update(data)
             print("%-14s %s" % (algo.upper()+":", m.hexdigest()))
-        print("%-14s %s" % ("Imphash:", pe.get_imphash()))
+        print("%-14s %s" % ("IMPHASH:", pe.get_imphash()))
+        print("%-14s %s" %("SSDEEP:", ssdeep.hash_from_file(filepath)))
 
-    def display_headers(seld, pe):
+    def display_headers(self, pe):
         """Display header information"""
         if pe.FILE_HEADER.IMAGE_FILE_DLL:
             print("DLL File! ")
@@ -136,8 +138,9 @@ class PluginInfo(Plugin):
         self.parser = parser
 
     def run(self, args, pe, data):
+        
         if args.hashes:
-            self.display_hashes(data, pe)
+            self.display_hashes(args.PEFILE, data, pe)
             sys.exit(0)
         if args.sections:
             display_sections(pe)
@@ -157,7 +160,7 @@ class PluginInfo(Plugin):
 
         print("Metadata")
         print("=" * 80)
-        self.display_hashes(data, pe)
+        self.display_hashes(args.PEFILE, data, pe)
         print("Size:          %d bytes" % len(data))
 
         self.display_headers(pe)
